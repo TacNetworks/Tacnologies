@@ -293,9 +293,13 @@ TRANSLATION_SCRIPT = """
         const langBtn = document.getElementById('lang-toggle');
         const langText = document.getElementById('lang-text');
 
+        const langBtnMobile = document.getElementById('lang-toggle-mobile');
+        const langTextMobile = document.getElementById('lang-text-mobile');
+
         function setLanguage(lang) {
             localStorage.setItem('sys-lang', lang);
             langText.innerText = lang.toUpperCase();
+            if(langTextMobile) langTextMobile.innerText = lang.toUpperCase();
             
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
@@ -316,6 +320,13 @@ TRANSLATION_SCRIPT = """
             const currentLang = localStorage.getItem('sys-lang') || 'en';
             setLanguage(currentLang === 'en' ? 'es' : 'en');
         });
+
+        if(langBtnMobile) {
+            langBtnMobile.addEventListener('click', () => {
+                const currentLang = localStorage.getItem('sys-lang') || 'en';
+                setLanguage(currentLang === 'en' ? 'es' : 'en');
+            });
+        }
 
         // Handlers para abrir/cerrar Modals
         function openModal(id) {
@@ -340,17 +351,29 @@ TRANSLATION_SCRIPT = """
         const darkIcon = document.getElementById('theme-icon-dark');
         const lightIcon = document.getElementById('theme-icon-light');
 
+        const themeToggleBtnMobile = document.getElementById('theme-toggle-mobile');
+        const darkIconMobile = document.getElementById('theme-icon-dark-mobile');
+        const lightIconMobile = document.getElementById('theme-icon-light-mobile');
+
         function toggleTheme() {
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
                 localStorage.setItem('color-theme', 'light');
                 darkIcon.classList.remove('hidden');
                 lightIcon.classList.add('hidden');
+                if(darkIconMobile) {
+                    darkIconMobile.classList.remove('hidden');
+                    lightIconMobile.classList.add('hidden');
+                }
             } else {
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('color-theme', 'dark');
                 darkIcon.classList.add('hidden');
                 lightIcon.classList.remove('hidden');
+                if(darkIconMobile) {
+                    darkIconMobile.classList.add('hidden');
+                    lightIconMobile.classList.remove('hidden');
+                }
             }
         }
 
@@ -358,17 +381,45 @@ TRANSLATION_SCRIPT = """
         const savedLang = localStorage.getItem('sys-lang') || 'en';
         setLanguage(savedLang);
 
-        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-            darkIcon.classList.add('hidden');
-            lightIcon.classList.remove('hidden');
-        } else {
+        // Force Default to Dark if not explicitly set to light
+        if (localStorage.getItem('color-theme') === 'light') {
             document.documentElement.classList.remove('dark');
             darkIcon.classList.remove('hidden');
             lightIcon.classList.add('hidden');
+            if(darkIconMobile) {
+                darkIconMobile.classList.remove('hidden');
+                lightIconMobile.classList.add('hidden');
+            }
+        } else {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('color-theme', 'dark');
+            darkIcon.classList.add('hidden');
+            lightIcon.classList.remove('hidden');
+            if(darkIconMobile) {
+                 darkIconMobile.classList.add('hidden');
+                 lightIconMobile.classList.remove('hidden');
+            }
         }
 
         themeToggleBtn.addEventListener('click', toggleTheme);
+        if(themeToggleBtnMobile) themeToggleBtnMobile.addEventListener('click', toggleTheme);
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if(mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Close mobile menu when clicking a link
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+        }
     </script>
 </body>
 </html>
@@ -410,6 +461,41 @@ NAV_HTML = """
                         Free Consultation
                     </a>
                 </div>
+
+                <!-- Botón Hamburger para Móviles -->
+                <div class="md:hidden flex items-center ml-auto">
+                    <button id="mobile-menu-btn" class="text-slate-600 dark:text-gray-300 hover:text-primary dark:hover:text-white focus:outline-none p-2">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú Móvil -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-darkBg border-t border-gray-200 dark:border-white/10 px-4 pt-4 pb-6 space-y-4 shadow-xl">
+            <a href="index.html" data-i18n="nav_home" class="block text-lg font-medium text-slate-900 dark:text-white hover:text-accent transition-colors">Home</a>
+            <a href="index.html#about" data-i18n="nav_about" class="block text-lg font-medium text-slate-900 dark:text-white hover:text-accent transition-colors">About</a>
+            <a href="services.html" data-i18n="nav_services" class="block text-lg font-medium text-accent hover:text-primary transition-colors">Services</a>
+            <a href="index.html#contacto" data-i18n="nav_contact" class="block text-lg font-medium text-slate-900 dark:text-white hover:text-accent transition-colors">Contact</a>
+            
+            <div class="pt-4 border-t border-gray-200 dark:border-white/10 flex items-center justify-between">
+                <!-- Boton Idioma Movil -->
+                <button id="lang-toggle-mobile" class="px-4 py-2 rounded bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-accent hover:bg-gray-300 dark:hover:bg-slate-700 transition-colors focus:outline-none flex items-center shadow">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
+                    <span id="lang-text-mobile" class="text-sm font-bold font-mono">EN</span>
+                </button>
+                
+                <!-- Botón Tema Movil -->
+                <button id="theme-toggle-mobile" class="p-2 rounded bg-gray-200 dark:bg-slate-800 text-gray-600 dark:text-accent hover:bg-gray-300 dark:hover:bg-slate-700 transition-colors focus:outline-none shadow">
+                    <svg id="theme-icon-light-mobile" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg id="theme-icon-dark-mobile" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+            </div>
+
+            <div class="pt-4">
+                <a href="index.html#contacto" data-i18n="nav_cta" class="block w-full text-center bg-gradient-modern text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-accent/50 transition-all duration-300">
+                    Free Consultation
+                </a>
             </div>
         </div>
     </nav>
